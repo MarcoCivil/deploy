@@ -1,0 +1,2 @@
+- name: ensure we have the database created
+  mysql_db: name={{ mysql_application_database }} state=present

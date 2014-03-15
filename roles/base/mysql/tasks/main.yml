@@ -1,0 +1,37 @@
+# Installation and server management
+- name: ensure mysql is installed
+  apt: name={{ item }} state=present
+  with_items:
+    - mysql-server
+    - python-mysqldb
+  tags: ['mysql', 'package']
+
+- name: start mysql
+  action: service name=mysql state=started enabled=true
+  tags: ['mysql', 'service']
+
+# Root password
+- name: update mysql root password for all root accounts
+  mysql_user: name=root host={{ item }} password={{ mysql_root_password }}
+  with_items:
+    - '{{ ansible_hostname }}'
+    - 127.0.0.1
+    - ::1
+    - localhost
+  tags: mysql
+
+# Allow managing mysql remotely with a different password
+- name: copy .my.cnf file with root password credentials
+  template: src=my.cnf dest=/root/.my.cnf owner=root mode=0600
+  tags: mysql
+
+# Remove unsafe unnecessary stuff
+- name: delete anonymous mysql server user for {{ ansible_hostname }}
+  mysql_user: user="" host="{{ ansible_hostname }}" state=absent
+  tags: mysql
+- name: delete anonymous mysql server user for localhost
+  mysql_user: user="" state=absent
+  tags: mysql
+- name: remove the mysql test database
+  mysql_db: db=test state=absent
+  tags: mysql

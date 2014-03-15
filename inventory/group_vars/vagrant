@@ -1,3 +1,4 @@
 # -*- Mode: Yaml -*-;
 ---
 mysql_root_password: root
+mysql_application_database: marcocivil
