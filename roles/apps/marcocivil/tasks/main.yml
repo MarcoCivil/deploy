@@ -1,6 +1,9 @@
 - name: ensure downloads directory
   file: path=/var/lib/{{ project_name }}/downloads state=directory
 
+- name: ensure project directory
+  file: path=/srv/{{ project_name }} state=directory
+
 - name: ensure we have the database created
   mysql_db: name={{ mysql_application_database }} state=present
 
@@ -39,3 +42,7 @@
 - name: ensure we have wordpress
   get_url: url=http://wordpress.org/wordpress-{{ wordpress_version }}.tar.gz
     dest=/var/lib/{{ project_name }}/downloads
+
+- name: ensure we unarchive wordpress
+  unarchive: src=/var/lib/{{ project_name }}/downloads/wordpress-{{ wordpress_version }}.tar.gz
+    dest=/srv/{{ project_name }} copy=false
