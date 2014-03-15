@@ -46,3 +46,19 @@
 - name: ensure we unarchive wordpress
   unarchive: src=/var/lib/{{ project_name }}/downloads/wordpress-{{ wordpress_version }}.tar.gz
     dest=/srv/{{ project_name }} copy=false
+
+- name: ensure we have unique keys for wordpress
+  get_url: url=https://api.wordpress.org/secret-key/1.1/salt/ dest=/srv/{{ project_name }}/wordpress/{{ project_name }}-keys.php
+    validate_certs=true
+
+- name: ensure the keys file is a valid php file
+  lineinfile: dest=/srv/{{ project_name }}/wordpress/{{ project_name }}-keys.php
+    insertbefore=BOF
+    line='<?php'
+
+- name: ensure wordpress configuration file
+  template: src=wp-config.php dest=/srv/{{ project_name }}/wordpress/wp-config.php owner=www-data group=www-data
+  notify: restart php5-fpm
+
+- name: ensure wordpress directory permissions
+  file: owner=www-data group=www-data path=/srv/{{ project_name }}/wordpress recurse=yes state=directory
