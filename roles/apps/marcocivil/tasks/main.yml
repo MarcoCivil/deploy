@@ -1,16 +1,10 @@
+# Directory structure
 - name: ensure downloads directory
   file: path=/var/lib/{{ project_name }}/downloads state=directory
-
 - name: ensure project directory
   file: path=/srv/{{ project_name }} state=directory
 
-- name: ensure we have the database created
-  mysql_db: name={{ mysql_application_database }} state=present
-
-- name: ensure we have a mysql user for wordpress
-  mysql_user: name={{ mysql_application_user }} password={{ mysql_application_password }}
-    priv={{ mysql_application_database }}.*:ALL state=present
-
+# APT
 - name: ensure os requirements
   apt: name={{ item }} state=installed
   with_items:
@@ -20,45 +14,50 @@
     - php5-mysql
     - php-apc
     - php5-gd
+    - varnish
 
+# Mysql
+- name: ensure we have the database created
+  mysql_db: name={{ mysql_application_database }} state=present
+- name: ensure we have a mysql user for wordpress
+  mysql_user: name={{ mysql_application_user }} password={{ mysql_application_password }}
+    priv={{ mysql_application_database }}.*:ALL state=present
+
+# PHP
 - name: ensure php-shm configuration is updated
   template: src=php.ini dest=/etc/php5/fpm/php.ini owner=root group=root mode=644
   notify: restart php5-fpm
 - name: ensure php is listening on the shm device
   template: src=www.conf dest=/etc/php5/fpm/pool.d/www.conf owner=root group=root mode=644
   notify: restart php5-fpm
+- name: start php5-fpm
+  service: name=php5-fpm state=started
 
+# Nginx
 - name: install nginx config file
   template: src=nginx.conf dest=/etc/nginx/sites-available/{{ project_name }}.conf owner=root group=root mode=644
 - name: enable nginx config file
   file: src=/etc/nginx/sites-available/{{ project_name }}.conf dest=/etc/nginx/sites-enabled/{{ project_name }}.conf state=link
   notify: restart nginx
-
-- name: start php5-fpm
-  service: name=php5-fpm state=started
 - name: start nginx
   service: name=nginx state=started
 
+# Wordpress
 - name: ensure we have wordpress
   get_url: url=http://wordpress.org/wordpress-{{ wordpress_version }}.tar.gz
     dest=/var/lib/{{ project_name }}/downloads
-
 - name: ensure we unarchive wordpress
   unarchive: src=/var/lib/{{ project_name }}/downloads/wordpress-{{ wordpress_version }}.tar.gz
     dest=/srv/{{ project_name }} copy=false
-
 - name: ensure we have unique keys for wordpress
   get_url: url=https://api.wordpress.org/secret-key/1.1/salt/ dest=/srv/{{ project_name }}/wordpress/{{ project_name }}-keys.php
     validate_certs=true
-
 - name: ensure the keys file is a valid php file
   lineinfile: dest=/srv/{{ project_name }}/wordpress/{{ project_name }}-keys.php
     insertbefore=BOF
     line='<?php'
-
 - name: ensure wordpress configuration file
   template: src=wp-config.php dest=/srv/{{ project_name }}/wordpress/wp-config.php owner=www-data group=www-data
   notify: restart php5-fpm
-
 - name: ensure wordpress directory permissions
   file: owner=www-data group=www-data path=/srv/{{ project_name }}/wordpress recurse=yes state=directory
