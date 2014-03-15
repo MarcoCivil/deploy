@@ -1,0 +1,5 @@
+# Python infrastructure
+- name: install os requirements
+  apt: name={{ item }} state=installed update_cache=yes
+  with_items:
+    - python-software-properties

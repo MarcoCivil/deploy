@@ -1,0 +1,3 @@
+# -*- Mode: Yaml -*-;
+---
+mysql_root_password: root

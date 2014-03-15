@@ -1,0 +1,6 @@
+---
+- hosts: development_vm
+  sudo: yes
+
+  roles:
+    - common
