@@ -1,2 +1,30 @@
 - name: ensure we have the database created
   mysql_db: name={{ mysql_application_database }} state=present
+
+- name: ensure os requirements
+  apt: name={{ item }} state=installed
+  with_items:
+    - php5-fpm
+    - php-pear
+    - php5-common
+    - php5-mysql
+    - php-apc
+    - php5-gd
+
+- name: ensure php-shm configuration is updated
+  template: src=php.ini dest=/etc/php5/fpm/php.ini owner=root group=root mode=644
+  notify: restart php5-fpm
+- name: ensure php is listening on the shm device
+  template: src=www.conf dest=/etc/php5/fpm/pool.d/www.conf owner=root group=root mode=644
+  notify: restart php5-fpm
+
+- name: install nginx config file
+  template: src=nginx.conf dest=/etc/nginx/sites-available/marcocivil.conf owner=root group=root mode=644
+- name: enable nginx config file
+  file: src=/etc/nginx/sites-available/marcocivil.conf dest=/etc/nginx/sites-enabled/marcocivil.conf state=link
+  notify: restart nginx
+
+- name: start php5-fpm
+  service: name=php5-fpm state=started
+- name: start nginx
+  service: name=nginx state=started
