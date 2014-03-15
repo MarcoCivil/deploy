@@ -1,5 +1,12 @@
+- name: ensure downloads directory
+  file: path=/var/lib/{{ project_name }}/downloads state=directory
+
 - name: ensure we have the database created
   mysql_db: name={{ mysql_application_database }} state=present
+
+- name: ensure we have a mysql user for wordpress
+  mysql_user: name={{ mysql_application_user }} password={{ mysql_application_password }}
+    priv={{ mysql_application_database }}.*:ALL state=present
 
 - name: ensure os requirements
   apt: name={{ item }} state=installed
@@ -19,12 +26,16 @@
   notify: restart php5-fpm
 
 - name: install nginx config file
-  template: src=nginx.conf dest=/etc/nginx/sites-available/marcocivil.conf owner=root group=root mode=644
+  template: src=nginx.conf dest=/etc/nginx/sites-available/{{ project_name }}.conf owner=root group=root mode=644
 - name: enable nginx config file
-  file: src=/etc/nginx/sites-available/marcocivil.conf dest=/etc/nginx/sites-enabled/marcocivil.conf state=link
+  file: src=/etc/nginx/sites-available/{{ project_name }}.conf dest=/etc/nginx/sites-enabled/{{ project_name }}.conf state=link
   notify: restart nginx
 
 - name: start php5-fpm
   service: name=php5-fpm state=started
 - name: start nginx
   service: name=nginx state=started
+
+- name: ensure we have wordpress
+  get_url: url=http://wordpress.org/wordpress-{{ wordpress_version }}.tar.gz
+    dest=/var/lib/{{ project_name }}/downloads

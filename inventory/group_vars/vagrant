@@ -1,7 +1,13 @@
 # -*- Mode: Yaml -*-;
 ---
-mysql_root_password: root
-mysql_application_database: marcocivil
 
+project_name: marcocivil
 domain_names:
   - marcocivil.org
+
+mysql_root_password: marcocivil
+mysql_application_user: marcocivil
+mysql_application_password: marcocivil
+mysql_application_database: marcocivil
+
+wordpress_version: 3.8.1
