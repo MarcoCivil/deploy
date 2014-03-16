@@ -6,4 +6,4 @@
     - common
     - base/mysql
     - base/nginx
-    - apps/marcocivil
+    - apps/wordpress
