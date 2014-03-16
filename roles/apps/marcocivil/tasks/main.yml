@@ -51,6 +51,8 @@
   notify: restart php5-fpm
 - name: start php5-fpm
   service: name=php5-fpm state=started
+- name: ensure logrotate instructions for the php5-fpm service
+  template: src=php5-fpm.logrotate dest=/etc/logrotate.d/php5-fpm
 
 # Nginx
 - name: install nginx config file

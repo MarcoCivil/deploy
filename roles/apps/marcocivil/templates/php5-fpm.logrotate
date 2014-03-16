@@ -1,0 +1,11 @@
+/var/log/php5-fpm.log
+{
+        weekly
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        copytruncate
+        notifempty
+        create 0640 www-data adm
+}
