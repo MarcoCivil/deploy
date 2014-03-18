@@ -1,5 +1,5 @@
 ---
-- hosts: development_vm
+- hosts: wordpress
   sudo: yes
 
   roles:
