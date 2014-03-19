@@ -22,7 +22,7 @@ define('DB_NAME', '{{ mysql_application_database }}');
 define('DB_USER', '{{ mysql_application_user }}');
 
 /** MySQL database password */
-define('DB_PASSWORD', '{{ mysql_application_database }}');
+define('DB_PASSWORD', '{{ mysql_application_password }}');
 
 /** MySQL hostname */
 define('DB_HOST', 'localhost');
