@@ -1,1 +1,3 @@
 .vagrant/
+dump.sql.gz
+wp-content.tar.gz

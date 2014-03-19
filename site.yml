@@ -7,3 +7,6 @@
     - base/mysql
     - base/nginx
     - apps/wordpress
+
+    - role: apps/migration
+      when: migration is defined

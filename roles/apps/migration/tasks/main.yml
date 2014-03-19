@@ -1,0 +1,11 @@
+- name: retrieve mysql dump
+  copy: src=dump.sql.gz dest=/tmp
+  tags: migration
+- name: import mysql dump
+  mysql_db: name={{ mysql_application_database }} state=import target=/tmp/dump.sql.gz
+  tags: migration
+- name: copy wp-content
+  unarchive: src=wp-content.tar.gz dest=/srv/{{ project_name }}/wordpress
+- name: ensure wordpress directory permissions
+  file: owner=www-data group=www-data path=/srv/{{ project_name }}/wordpress recurse=yes state=directory
+  tags: migration
