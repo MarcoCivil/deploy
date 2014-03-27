@@ -7,6 +7,7 @@
     - base/mysql
     - base/nginx
     - apps/wordpress
+    - vendor/role-hardening
 
     - role: apps/migration
       when: migration is defined

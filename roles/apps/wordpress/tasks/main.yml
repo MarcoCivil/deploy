@@ -10,12 +10,6 @@
 - name: ensure ufw is enabled
   shell: echo 'y' | ufw enable
 
-# No root ssh connections
-- name: disallow root ssh access
-  lineinfile: dest=/etc/ssh/sshd_config
-    regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
-  notify: restart ssh
-
 # Directory structure
 - name: ensure downloads directory
   file: path=/var/lib/{{ project_name }}/downloads state=directory
@@ -73,13 +67,12 @@
 # Wordpress
 - name: ensure we have wordpress
   get_url: url=http://wordpress.org/wordpress-{{ wordpress_version }}.tar.gz
-    dest=/var/lib/{{ project_name }}/downloads
+    dest=/var/lib/{{ project_name }}/downloads validate_certs=true
 - name: ensure we unarchive wordpress
   unarchive: src=/var/lib/{{ project_name }}/downloads/wordpress-{{ wordpress_version }}.tar.gz
     dest=/srv/{{ project_name }} copy=false
 - name: ensure we have unique keys for wordpress
-  get_url: url=https://api.wordpress.org/secret-key/1.1/salt/ dest=/srv/{{ project_name }}/wordpress/{{ project_name }}-keys.php
-    validate_certs=true
+  get_url: url=https://api.wordpress.org/secret-key/1.1/salt/ dest=/srv/{{ project_name }}/wordpress/{{ project_name }}-keys.php validate_certs=true
 - name: ensure the keys file is a valid php file
   lineinfile: dest=/srv/{{ project_name }}/wordpress/{{ project_name }}-keys.php
     insertbefore=BOF
