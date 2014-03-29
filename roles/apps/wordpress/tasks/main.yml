@@ -48,9 +48,43 @@
 - name: ensure logrotate instructions for the php5-fpm service
   template: src=php5-fpm.logrotate dest=/etc/logrotate.d/php5-fpm
 
+# SSL CA files
+- name: ensure ca file
+  get_url: url=http://www.startssl.com/certs/ca.pem dest=/etc/nginx/certificates
+  tags: ssl
+- name: ensure sub.class1.server.ca file
+  get_url: url=http://www.startssl.com/certs/sub.class1.server.ca.pem dest=/etc/nginx/certificates
+  tags: ssl
+
+# SSL certificate and key
+- name: ensure certificate file for each ssl domain
+  copy: src=certs/{{ item }}.crt dest=/etc/nginx/certificates/{{ item }}.crt owner=www-data group=www-data mode=0600
+  with_items: ssl_domains
+  tags: ssl
+- name: ensure private key file for each ssl domain
+  copy: src=certs/{{ item }}.pem dest=/etc/nginx/certificates/{{ item }}.pem owner=www-data group=www-data mode=0600
+  with_items: ssl_domains
+  tags: ssl
+
+# SSL output files
+- name: decrypted keys
+  shell: chdir=/etc/nginx/certificates creates='{{ item }}.decrypted.pem'
+    openssl rsa -in '{{ item }}.pem' -out '{{ item }}.decrypted.pem'
+  with_items: ssl_domains
+  tags: ssl
+- name: concatenate certificate files
+  shell: chdir=/etc/nginx/certificates creates='{{ item }}.combined.crt'
+    cat '{{ item }}.crt' sub.class1.server.ca.pem ca.pem > '{{ item }}.combined.crt'
+  with_items: ssl_domains
+  tags: ssl
+- name: c_rehash certificates
+  shell: chdir=/etc/nginx/certificates c_rehash .
+  tags: ssl
+
 # Nginx
-- name: install nginx config file
-  template: src=nginx.conf dest=/etc/nginx/sites-available/{{ project_name }}.conf owner=root group=root mode=644
+- name: ensure nginx config file
+  template: src=nginx.conf dest=/etc/nginx/sites-available/{{ project_name }}.conf owner=root group=root mode=0644
+  notify: restart nginx
 - name: enable nginx config file
   file: src=/etc/nginx/sites-available/{{ project_name }}.conf dest=/etc/nginx/sites-enabled/{{ project_name }}.conf state=link
   notify: restart nginx

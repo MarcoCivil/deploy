@@ -1,3 +1,5 @@
+- name: ensure directory for certificate files used by nginx
+  file: path=/etc/nginx/certificates state=directory owner=www-data group=www-data
 - name: add nginx ppa
   command: add-apt-repository -y ppa:nginx/stable
     creates=/etc/apt/sources.list.d/nginx-stable-precise.list

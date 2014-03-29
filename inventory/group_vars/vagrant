@@ -2,8 +2,10 @@
 ---
 
 project_name: marcocivil
-domain_names:
+domains:
   - marcocivil.org.br
+ssl_domains:
+  - admin.marcocivil.org.br
 
 mysql_root_password: marcocivil
 mysql_application_user: marcocivil

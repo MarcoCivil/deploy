@@ -73,6 +73,10 @@ define('WPLANG', '');
  */
 define('WP_DEBUG', false);
 
+{% if ssl_domains %}
+define('FORCE_SSL_ADMIN', true);
+{% endif %}
+
 /* That's all, stop editing! Happy blogging. */
 
 /** Absolute path to the WordPress directory. */
