@@ -6,6 +6,7 @@
     - common
     - base/mysql
     - base/nginx
+    - base/vsftpd
     - apps/wordpress
     - vendor/role-hardening
 

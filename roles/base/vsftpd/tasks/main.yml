@@ -1,0 +1,10 @@
+- name: Install vsftpd
+  apt: pkg=vsftpd state=installed
+
+- name: Ensure vsftpd.conf is in place
+  template: src=vsftpd.conf.j2 dest=/etc/vsftpd.conf
+  notify: restart vsftpd
+
+- name: Ensure vsftpd.user_list is in place
+  template: src=vsftpd.user_list.j2 dest=/etc/vsftpd.user_list
+  notify: restart vsftpd
